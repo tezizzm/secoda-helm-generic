@@ -1,0 +1,136 @@
+{{ $val := .Values.services.api -}}
+{{ $globals := .Values.global -}}
+{{ $datastores := .Values.datastores -}}
+{{ $proxy := .Values.cloudSqlAuthProxy -}}
+{{ $chartVersion := .Chart.AppVersion -}}
+{{- $fullName := include "secoda.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secoda.fullnameApi" . }}
+  annotations: 
+    {{- toYaml .Values.annotations | nindent 4 }}
+  labels:
+    {{- include "secoda.labelsApi" . | nindent 4 }}selectorLabels
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "secoda.selectorLabelsApi" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "secoda.selectorLabelsApi" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        - name: secoda-dockerhub
+      serviceAccountName: {{ include "secoda.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: api
+          {{- with (merge $globals.securityContext $val.securityContext) }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ coalesce $val.image.registry $globals.image.registry }}/{{ coalesce $val.image.name $globals.image.name }}:{{ coalesce $val.image.tag $globals.image.tag $chartVersion }}"
+          imagePullPolicy: {{ coalesce $val.image.pullPolicy $globals.image.pullPolicy }}
+          {{- with $val.command }}
+          command: {{ . }}
+          {{ end }}
+          {{- with  coalesce $val.args }}
+          args: {{ . }}
+          {{ end }}
+          env: 
+          {{- with (compact (concat $globals.env $val.env)) }}
+             {{- toYaml . | nindent 10 }}
+          {{ end }}
+          - name: AUTHORIZED_DOMAINS
+            value:  {{ $datastores.secoda.authorized_domains }}
+          - name: REDIS_URL
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: REDIS_URL
+          - name: ES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: ES_HOST
+          - name: ES_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: ES_USERNAME
+          - name: ES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: ES_PASSWORD
+          - name: VITE_NEW_AUTH
+            value: "true"
+          - name: APISERVICE_DATABASE_CONNECTION
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: APISERVICE_DATABASE_CONNECTION
+          - name: APISERVICE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secrets"
+                key: APISERVICE_SECRET
+          - name: PUBLIC_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secret-keys"
+                key: PUBLIC_KEY
+          - name: PRIVATE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "secoda-secret-keys"
+                key: PRIVATE_KEY
+          {{- with $val.ports }}
+          ports: 
+           {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $val.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $val.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $val.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml $val.resources | nindent 12 }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelectorApi }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

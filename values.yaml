@@ -1,0 +1,35 @@
+datastores:
+  secoda:
+    authorized_domains: "secoda.co,secoda.com" # Replace with your email domains
+env:
+- name: IS_MANAGED
+  value: "true"
+nodeSelectorApi: {}
+serviceAccount:
+  annotations: {}
+  create: true
+  name: secoda
+  namespace: secoda
+services:
+  api:
+    image:
+      name: on-premise-api
+      registry: secoda
+    resources:
+      limits:
+        cpu: 2048m
+        memory: 20480Mi
+      requests:
+        cpu: 2048m
+        memory: 20480Mi
+  frontend:
+    image:
+      name: on-premise-frontend
+      registry: secoda
+    resources:
+      limits:
+        cpu: 512m
+        memory: 2048Mi
+      requests:
+        cpu: 512m
+        memory: 2048Mi
