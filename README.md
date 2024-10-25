@@ -52,7 +52,7 @@ then rerun `secoda-secrets.sh` and optionally restart the secoda pods to pick up
 
 After editing the `values.yaml file and `running `secoda-secrets.sh` your Kubernetes cluster will be ready to install the Secoda Helm chart. From the base of the repository, run:
 ```
-helm install -n secoda -f values.yaml secoda ./helm/charts/secoda/
+helm install -n secoda -f values.yaml secoda ./charts/secoda/
 ```
 
 ## Updating Secoda
