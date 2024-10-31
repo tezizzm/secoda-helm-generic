@@ -5,11 +5,15 @@ env:
 - name: IS_MANAGED
   value: "true"
 nodeSelectorApi: {}
+# If you are require a service account with linked roles, set create to false and
+# the name to your preferred service account
 serviceAccount:
   annotations: {}
   create: true
   name: secoda
   namespace: secoda
+# These are the minimum resources to run Secoda. Larger, more active environment
+# will need more api resources
 services:
   api:
     image:
@@ -33,3 +37,8 @@ services:
       requests:
         cpu: 512m
         memory: 2048Mi
+# Set the version tag here if you need to pin to a Secoda version instead
+# of tracking "latest"
+global:
+  image:
+    tag: "latest"
