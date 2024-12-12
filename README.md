@@ -73,6 +73,31 @@ helm install -n secoda -f values.yaml secoda secoda/secoda
 * The Secoda Helm is configured to pull the latest images automatically on restart.
 * `kubectl rollout restart deployment -n secoda` will redeploy the application with the latest images.
 
+## Managing the Secoda Release Version
+
+The default setup always deploys the latest Secoda Docker images (`tag:latest`.) This may not be optimal behavior for all customers. To pin to a specific Secoda version, modify your `values.yaml` file.
+
+The default `values.yamlo` file sets the version in:
+```
+# Set the version tag here if you need to pin to a Secoda version instead
+# of tracking "latest"
+global:
+  image:
+    tag: "latest"
+```
+Instead of `"latest"` enter your desired version:
+```
+# Set the version tag here if you need to pin to a Secoda version instead
+# of tracking "latest"
+global:
+  image:
+    tag: "2024.4.1"
+```
+To update the containers to your new version, after modifying your `values.yaml` file run
+```
+helm upgrade -n secoda -f values.yaml secoda ./charts/secoda/
+```
+
 ## Ingress Setup
 An example ingress file, `ingress_example.yaml` is included. You will need to modify this to work with your preferred ingress class, which must also be installed to the kubernetes cluster. For most use cases, only the `spec.ingressClassName` and `spec.rules.0.host` should need to be modified. Then the ingress can be deployed with 
 ```
