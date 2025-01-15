@@ -3,7 +3,7 @@ datastores:
     authorized_domains: "secoda.co,secoda.com" # Replace with your email domains
 env:
 - name: IS_MANAGED
-  value: "true"
+  value: "false"
 nodeSelectorApi: {}
 # If you are require a service account with linked roles, set create to false and
 # the name to your preferred service account
