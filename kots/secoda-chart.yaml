@@ -1,0 +1,33 @@
+apiVersion: kots.io/v1beta2
+kind: HelmChart
+metadata:
+  name: secoda
+spec:
+  # chart identifies a matching chart from a .tgz
+  chart:
+    name: secoda
+    chartVersion: $VERSION
+
+  # values are used in the customer environment, as a pre-render step
+  # these values will be supplied to helm template
+  values:
+    replicated:
+      isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
+      isKOTSManaged: true
+      imagePullSecrets:
+        - name: '{{repl ImagePullSecretName }}'
+      image:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
+    images:
+      pullSecrets:
+        - name: '{{repl ImagePullSecretName }}'
+      slackernews:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
+      nginx:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
+      postgres:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'

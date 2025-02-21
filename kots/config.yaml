@@ -1,0 +1,60 @@
+apiVersion: kots.io/v1beta1
+kind: Config
+metadata:
+  name: secoda-config
+spec:
+  groups:
+    - name: redis
+      title: Redis
+      description: |
+        You can configure the Redis portion of the Secoda application
+      
+      items:
+        - name: redis_url
+          type: select_one
+          title: Certificate Source
+          help_text: >
+            # REDIS_URL=redis://REDIS_HOST:REDIS_PORT Replace REDIS_HOST and REDIS_PORT, can also be rediss:// for ssl connections and rediss://user:password@host:port if auth is enabled
+
+    - name: elastic_search
+      title: Elastic Settings
+      description: |
+        If desired, you can preconfigure the slack settings for the Elastic Serach component.
+
+      items:
+        - name: elastic_host
+          title: Elastic Host
+          type: text
+        - name: elastic_username
+          title: Elastic Username
+          type: text
+        - name: elastic_password
+          title: Elastic Password
+          type: password
+
+    - name: apiService
+      description: >
+        This section can be used to configure the API Service
+      title: API Service
+      items:
+        - name: deploy_apiService
+          type: bool
+          title: Deploy API Service
+          default: "1"
+        - name: postgres_password
+          type: password
+          title: Postgresql Password
+          required: true
+          hidden: true
+          when: repl{{ ConfigOptionEquals "deploy_apiService" "1"}}
+          value: repl{{ RandomString 40}}
+        - name: postgres_external_uri
+          type: text
+          title: Postgresql URI
+          required: true
+          when: repl{{ ConfigOptionEquals "deploy_apiService" "0"}}
+        - name: apiService_secret
+          type: password
+          title: API Service Secret
+          required: true
+        

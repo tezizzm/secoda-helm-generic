@@ -1,0 +1,26 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: "secoda"
+  labels:
+    app.kubernetes.io/name: "secoda"
+    app.kubernetes.io/version: "0.0.1"
+spec:
+  selector:
+    matchLabels:
+     app.kubernetes.io/name: "secoda"
+  componentKinds:
+    - group: core
+      kind: Service
+    - group: apps
+      kind: Deployment
+  descriptor:
+    version: "1.0.0"
+    description: "secoda"
+    icons:
+      - src: "https://cdn.prod.website-files.com/648302318a1143aaf5e78dfa/662e7e94b56b979257642b08_secoda.png"
+        type: "image/png"
+    type: secoda
+    links:
+      - description: 🔗 Open Secoda
+        url: "https://secoda"

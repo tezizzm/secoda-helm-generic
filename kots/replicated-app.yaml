@@ -1,0 +1,15 @@
+apiVersion: kots.io/v1beta1
+kind: Application
+metadata:
+  name: secoda
+spec:
+  title: Secoda
+  icon: "https://cdn.prod.website-files.com/648302318a1143aaf5e78dfa/662e7e94b56b979257642b08_secoda.png"
+  ports:
+    - serviceName: secoda-nginx
+      servicePort: 443
+      localPort: 443
+      applicationUrl: "https://secoda"
+  statusInformers:
+    - deployment/secoda
+    - deployment/secoa-nginx
