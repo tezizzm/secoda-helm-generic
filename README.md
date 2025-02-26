@@ -77,7 +77,7 @@ helm install -n secoda -f values.yaml secoda secoda/secoda
 
 The default setup always deploys the latest Secoda Docker images (`tag:latest`.) This may not be optimal behavior for all customers. To pin to a specific Secoda version, modify your `values.yaml` file.
 
-The default `values.yamlo` file sets the version in:
+The default `values.yaml` file sets the version in:
 ```
 # Set the version tag here if you need to pin to a Secoda version instead
 # of tracking "latest"
