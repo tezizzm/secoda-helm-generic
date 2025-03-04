@@ -121,6 +121,8 @@ annotations: {}
 redis:
   enabled: true
   architecture: standalone
+  image:
+    tag: "6.2.7-debian-11-r3"  # Redis 6.2.x
   auth:
     enabled: false
   master:
@@ -129,11 +131,12 @@ redis:
       size: 8Gi
     resources:
       requests:
-        memory: 256Mi
-        cpu: 100m
+        memory: 2Gi
+        cpu: 1
       limits:
-        memory: 512Mi
-        cpu: 200m
+        memory: 2Gi
+        cpu: 1
+    replicaCount: 1  # Minimum 1 replica
 
 ## PostgreSQL Configuration
 ## ref: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
