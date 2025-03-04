@@ -139,21 +139,23 @@ redis:
 ## ref: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   enabled: true
+  image:
+    tag: "14.10.0-debian-11-r14"  # PostgreSQL 14.x
   auth:
-    username: postgres
-    password: postgres
-    database: postgres
+    username: keycloak
+    password: keycloak  # This should be configured through UI
+    database: secoda
   primary:
     persistence:
       enabled: true
-      size: 10Gi
+      size: 100Gi
     resources:
       requests:
-        memory: 256Mi
-        cpu: 100m
+        memory: 8Gi
+        cpu: 2
       limits:
-        memory: 1Gi
-        cpu: 500m
+        memory: 8Gi
+        cpu: 2
 
 ## OpenSearch Configuration
 ## ref: https://github.com/opensearch-project/helm-charts/tree/main/charts/opensearch

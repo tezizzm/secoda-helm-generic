@@ -33,25 +33,25 @@ spec:
         - name: postgres_username
           title: PostgreSQL Username
           type: text
-          default: "postgres"
+          default: "keycloak"
           when: '{{repl or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
-          help_text: The username for PostgreSQL
+          help_text: The admin-level username for PostgreSQL
         - name: postgres_password
           title: PostgreSQL Password
           type: password
-          default: "postgres"
+          required: true
           when: '{{repl or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
-          help_text: The password for PostgreSQL
+          help_text: The admin-level password for the keycloak user
         - name: postgres_database
           title: PostgreSQL Database
           type: text
-          default: "postgres"
+          default: "secoda"
           when: '{{repl or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
           help_text: The database name for PostgreSQL
         - name: postgres_size
           title: PostgreSQL Storage Size
           type: text
-          default: "10Gi"
+          default: "100Gi"
           when: '{{repl ConfigOptionEquals "postgres_enabled" "1"}}'
           help_text: The storage size for PostgreSQL
 

@@ -63,6 +63,13 @@ spec:
       primary:
         persistence:
           size: '{{repl ConfigOption "postgres_size"}}'
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 2
+          limits:
+            memory: 8Gi
+            cpu: 2
     
     # OpenSearch configuration
     opensearch:
