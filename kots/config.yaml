@@ -151,7 +151,7 @@ spec:
           title: Custom API Service Secret
           type: text
           required: false
-          when: "{{repl if eq .api_service_secret_auto "1"}}true{{repl else}}false{{repl end}}"
+          when: '{{repl if eq .api_service_secret_auto "1"}}true{{repl else}}false{{repl end}}'
           help_text: "Enter your custom API service secret. Only used when custom secret is enabled."
         - name: keys_auto
           title: Use Custom API Keys
@@ -162,23 +162,23 @@ spec:
           title: Custom Public Key
           type: text
           required: false
-          when: "{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}"
+          when: '{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}'
           help_text: "Enter your custom public key. Only used when custom keys are enabled."
         - name: private_key
           title: Custom Private Key
           type: text
           required: false
-          when: "{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}"
+          when: '{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}'
           help_text: "Enter your custom private key. Only used when custom keys are enabled."
         - name: public_key_file
           title: Upload Public Key File
           type: file
           required: false
-          when: "{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}"
+          when: '{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}'
           help_text: "Upload a file containing your public key. This will override the text input if both are provided."
         - name: private_key_file
           title: Upload Private Key File
           type: file
           required: false
-          when: "{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}"
+          when: '{{repl if eq .keys_auto "1"}}true{{repl else}}false{{repl end}}'
           help_text: "Upload a file containing your private key. This will override the text input if both are provided." 

@@ -6,7 +6,7 @@ spec:
   # chart identifies a matching chart from a .tgz
   chart:
     name: secoda
-    chartVersion: $VERSION
+    chartVersion: 1.0.0
 
   # values are used in the customer environment, as a pre-render step
   # these values will be supplied to helm template

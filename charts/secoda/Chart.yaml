@@ -1,36 +1,20 @@
 apiVersion: v2
 name: secoda
-description: Helm Chart for Secoda
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into version: 4.43.0
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+description: A Helm chart for Secoda.
 type: application
-# This is the chart version: 4.43.0
-# to the chart and its templates, including the app version: 4.43.0
-# Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 7.0.1
-# This is the version: 4.43.0
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version: 4.43.0
-# It is recommended to use it with quotes.
-appVersion: "7.0.1"
-
+version: 1.0.0
+appVersion: "1.0.0"
 dependencies:
   - name: redis
-    version: "~17.11.0"
+    version: "16.13.2"
     repository: "https://charts.bitnami.com/bitnami"
     condition: redis.enabled
   - name: postgresql
-    version: "~12.5.0"
+    version: "~14.0.0"
     repository: "https://charts.bitnami.com/bitnami"
     condition: postgresql.enabled
   - name: opensearch
-    version: "~2.13.0"
+    version: "~2.9.0"
     repository: "https://opensearch-project.github.io/helm-charts/"
     condition: opensearch.enabled
   - name: opensearch-dashboards

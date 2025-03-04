@@ -7,3 +7,13 @@ terraform.tfstate*
 
 *.tfvars
 .idea
+
+# Ignore Helm chart package files
+*.tgz
+
+# Ignore Helm dependency build artifacts
+charts/secoda/charts
+Chart.lock
+
+# Ignore Helm release history
+.release/
