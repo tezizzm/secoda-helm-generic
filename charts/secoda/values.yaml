@@ -164,23 +164,40 @@ postgresql:
 ## ref: https://github.com/opensearch-project/helm-charts/tree/main/charts/opensearch
 opensearch:
   enabled: false
-  singleNode: true
+  image:
+    tag: "2.9.0"  # OpenSearch 2.x
+  singleNode: false  # Allow for cluster mode
   config:
     opensearch.yml: |
       cluster.name: opensearch-cluster
-      # Disable security features for simplicity
-      plugins.security.disabled: true
+      # Enable security features
+      plugins.security.disabled: false
+      # Configure master user
+      plugins.security.authc:
+        basic_internal_auth_domain:
+          description: "Basic auth for internal users"
+          http_enabled: true
+          transport_enabled: true
+          order: 0
+          http_authenticator:
+            type: basic
+            challenge: true
+          authentication_backend:
+            type: internal
+  auth:
+    adminUser: admin
+    adminPassword: admin  # This should be configured through UI
   persistence:
     enabled: true
     size: 20Gi
   resources:
     requests:
-      memory: 1Gi
-      cpu: 500m
+      memory: 4Gi
+      cpu: 1
     limits:
-      memory: 2Gi
-      cpu: 1000m
-  javaOpts: "-Xmx1g -Xms1g"
+      memory: 4Gi
+      cpu: 1
+  javaOpts: "-Xmx2g -Xms2g"  # Set to half of memory for optimal performance
 
 ## OpenSearch Dashboards Configuration
 ## ref: https://github.com/opensearch-project/helm-charts/tree/main/charts/opensearch-dashboards

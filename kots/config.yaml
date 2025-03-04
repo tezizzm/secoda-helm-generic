@@ -114,6 +114,18 @@ spec:
           default: "9200"
           when: '{{repl ConfigOptionEquals "opensearch_external" "1"}}'
           help_text: The port of your external OpenSearch server
+        - name: opensearch_username
+          title: OpenSearch Username
+          type: text
+          default: "admin"
+          when: '{{repl or (ConfigOptionEquals "opensearch_enabled" "1") (ConfigOptionEquals "opensearch_external" "1")}}'
+          help_text: The admin username for OpenSearch
+        - name: opensearch_password
+          title: OpenSearch Password
+          type: password
+          required: true
+          when: '{{repl or (ConfigOptionEquals "opensearch_enabled" "1") (ConfigOptionEquals "opensearch_external" "1")}}'
+          help_text: The admin password for OpenSearch
         - name: opensearch_size
           title: OpenSearch Storage Size
           type: text

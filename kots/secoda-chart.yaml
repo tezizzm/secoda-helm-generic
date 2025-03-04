@@ -79,8 +79,18 @@ spec:
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch'
         tag: "2.9.0"
         pullPolicy: IfNotPresent
+      auth:
+        adminUser: '{{repl ConfigOption "opensearch_username"}}'
+        adminPassword: '{{repl ConfigOption "opensearch_password"}}'
       persistence:
         size: '{{repl ConfigOption "opensearch_size"}}'
+      resources:
+        requests:
+          memory: 4Gi
+          cpu: 1
+        limits:
+          memory: 4Gi
+          cpu: 1
     
     # OpenSearch Dashboards configuration
     opensearchDashboards:
