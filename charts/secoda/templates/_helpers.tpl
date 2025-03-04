@@ -91,3 +91,108 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Get PostgreSQL connection details
+*/}}
+{{- define "secoda.postgresql.host" -}}
+{{- if .Values.externalServices.postgres.external }}
+{{- .Values.externalServices.postgres.host }}
+{{- else if .Values.postgresql.enabled }}
+{{- printf "%s-postgresql" .Release.Name }}
+{{- else }}
+{{- fail "PostgreSQL is not enabled and no external PostgreSQL is configured" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.postgresql.port" -}}
+{{- if .Values.externalServices.postgres.external }}
+{{- .Values.externalServices.postgres.port }}
+{{- else }}
+{{- "5432" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.postgresql.username" -}}
+{{- if .Values.externalServices.postgres.external }}
+{{- .Values.externalServices.postgres.username }}
+{{- else if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.username }}
+{{- else }}
+{{- fail "PostgreSQL is not enabled and no external PostgreSQL is configured" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.postgresql.password" -}}
+{{- if .Values.externalServices.postgres.external }}
+{{- .Values.externalServices.postgres.password }}
+{{- else if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.password }}
+{{- else }}
+{{- fail "PostgreSQL is not enabled and no external PostgreSQL is configured" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.postgresql.database" -}}
+{{- if .Values.externalServices.postgres.external }}
+{{- .Values.externalServices.postgres.database }}
+{{- else if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.database }}
+{{- else }}
+{{- fail "PostgreSQL is not enabled and no external PostgreSQL is configured" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Get Redis connection details
+*/}}
+{{- define "secoda.redis.host" -}}
+{{- if .Values.externalServices.redis.external }}
+{{- .Values.externalServices.redis.host }}
+{{- else if .Values.redis.enabled }}
+{{- printf "%s-redis-master" .Release.Name }}
+{{- else }}
+{{- fail "Redis is not enabled and no external Redis is configured" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.redis.port" -}}
+{{- if .Values.externalServices.redis.external }}
+{{- .Values.externalServices.redis.port }}
+{{- else }}
+{{- "6379" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Get OpenSearch connection details
+*/}}
+{{- define "secoda.opensearch.host" -}}
+{{- if .Values.externalServices.opensearch.external }}
+{{- .Values.externalServices.opensearch.host }}
+{{- else if .Values.opensearch.enabled }}
+{{- printf "%s-opensearch" .Release.Name }}
+{{- else }}
+{{- fail "OpenSearch is not enabled and no external OpenSearch is configured" }}
+{{- end }}
+{{- end }}
+
+{{- define "secoda.opensearch.port" -}}
+{{- if .Values.externalServices.opensearch.external }}
+{{- .Values.externalServices.opensearch.port }}
+{{- else }}
+{{- "9200" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Generate APISERVICE_SECRET
+*/}}
+{{- define "secoda.apiservice.secret" -}}
+{{- if .Values.services.api.secret }}
+{{- .Values.services.api.secret }}
+{{- else }}
+{{- $secret := printf "%s-%s-%s" .Release.Name .Release.Namespace .Release.Revision | sha256sum | trunc 32 }}
+{{- $secret }}
+{{- end }}
+{{- end }}

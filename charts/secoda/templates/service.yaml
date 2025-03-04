@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "secoda.fullname" . }}
+  name: {{ include "secoda.fullname" . }}-frontend
   labels:
     {{- include "secoda.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -13,3 +14,4 @@ spec:
       protocol: TCP
   selector:
     {{- include "secoda.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend

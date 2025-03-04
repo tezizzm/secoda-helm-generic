@@ -31,8 +31,10 @@ spec:
       labels:
         {{- include "secoda.selectorLabelsApi" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: secoda-dockerhub
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "secoda.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
@@ -59,47 +61,23 @@ spec:
           - name: AUTHORIZED_DOMAINS
             value:  {{ $datastores.secoda.authorized_domains }}
           - name: REDIS_URL
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: REDIS_URL
+            value: "redis://{{ include "secoda.redis.host" . }}:{{ include "secoda.redis.port" . }}"
           - name: ES_HOST
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: ES_HOST
+            value: "http://{{ include "secoda.opensearch.host" . }}:{{ include "secoda.opensearch.port" . }}"
           - name: ES_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: ES_USERNAME
+            value: {{ .Values.opensearch.auth.adminUser | quote }}
           - name: ES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: ES_PASSWORD
+            value: {{ .Values.opensearch.auth.adminPassword | quote }}
           - name: VITE_NEW_AUTH
             value: "true"
           - name: APISERVICE_DATABASE_CONNECTION
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: APISERVICE_DATABASE_CONNECTION
+            value: "postgresql://{{ include "secoda.postgresql.username" . }}:{{ include "secoda.postgresql.password" . }}@{{ include "secoda.postgresql.host" . }}:{{ include "secoda.postgresql.port" . }}/{{ include "secoda.postgresql.database" . }}"
           - name: APISERVICE_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secrets"
-                key: APISERVICE_SECRET
+            value: {{ $val.secret | quote }}
           - name: PUBLIC_KEY
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secret-keys"
-                key: PUBLIC_KEY
+            value: {{ .Values.services.api.publicKey | quote }}
           - name: PRIVATE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: "secoda-secret-keys"
-                key: PRIVATE_KEY
+            value: {{ .Values.services.api.privateKey | quote }}
           {{- with $val.ports }}
           ports: 
            {{- toYaml . | nindent 12 }}

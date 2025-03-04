@@ -19,3 +19,25 @@ version: 7.0.1
 # follow Semantic Versioning. They should reflect the version: 4.43.0
 # It is recommended to use it with quotes.
 appVersion: "7.0.1"
+
+dependencies:
+  - name: redis
+    version: "~17.11.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: postgresql
+    version: "~12.5.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: opensearch
+    version: "~2.13.0"
+    repository: "https://opensearch-project.github.io/helm-charts/"
+    condition: opensearch.enabled
+  - name: opensearch-dashboards
+    version: "~2.11.0"
+    repository: "https://opensearch-project.github.io/helm-charts/"
+    condition: opensearchDashboards.enabled
+  - name: replicated
+    version: "0.0.1-alpha.24"
+    repository: "https://replicatedhq.github.io/replicated-sdk/"
+    condition: replicated.enabled

@@ -19,15 +19,91 @@ spec:
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
-    images:
-      pullSecrets:
-        - name: '{{repl ImagePullSecretName }}'
-      slackernews:
+
+    # Service configurations
+    services:
+      api:
+        image:
+          registry: '{{repl if eq .replicated.isEmbeddedCluster "1"}}registry.default.svc.cluster.local{{repl else}}{{repl .replicated.image.registry }}{{repl end}}'
+          name: "on-premise-api"
+          tag: '{{repl .replicated.image.tag }}'
+          pullPolicy: IfNotPresent
+        secret: '{{repl if eq .api_service_secret_auto "1"}}{{repl .api_service_secret }}{{repl else}}{{repl printf "%s-%s" .release_name .namespace | sha256sum }}{{repl end}}'
+        publicKey: '{{repl if eq .keys_auto "1"}}{{repl if .public_key_file }}{{repl .public_key_file }}{{repl else}}{{repl .public_key }}{{repl end}}{{repl else}}{{repl printf "%s-%s-public" .release_name .namespace | sha256sum }}{{repl end}}'
+        privateKey: '{{repl if eq .keys_auto "1"}}{{repl if .private_key_file }}{{repl .private_key_file }}{{repl else}}{{repl .private_key }}{{repl end}}{{repl else}}{{repl printf "%s-%s-private" .release_name .namespace | sha256sum }}{{repl end}}'
+      frontend:
+        image:
+          registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+          repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/secoda") }}'
+          tag: '{{repl ConfigOption "frontend_version" | default .Chart.AppVersion }}'
+
+    # Redis configuration
+    redis:
+      enabled: '{{repl ConfigOptionEquals "redis_enabled" "1"}}'
+      image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/ghcr.io/$NAMESPACE" ) }}/slackernews-web'
-      nginx:
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/redis'
+        tag: "7.0.12-debian-11-r11"
+        pullPolicy: IfNotPresent
+      persistence:
+        size: '{{repl ConfigOption "redis_size"}}'
+    
+    # PostgreSQL configuration
+    postgresql:
+      enabled: '{{repl ConfigOptionEquals "postgres_enabled" "1"}}'
+      image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/nginx'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/postgresql'
+        tag: "14.10.0-debian-11-r14"
+        pullPolicy: IfNotPresent
+      auth:
+        username: '{{repl ConfigOption "postgres_username"}}'
+        password: '{{repl ConfigOption "postgres_password"}}'
+        database: '{{repl ConfigOption "postgres_database"}}'
+      primary:
+        persistence:
+          size: '{{repl ConfigOption "postgres_size"}}'
+    
+    # OpenSearch configuration
+    opensearch:
+      enabled: '{{repl ConfigOptionEquals "opensearch_enabled" "1"}}'
+      image:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch'
+        tag: "2.9.0"
+        pullPolicy: IfNotPresent
+      persistence:
+        size: '{{repl ConfigOption "opensearch_size"}}'
+    
+    # OpenSearch Dashboards configuration
+    opensearchDashboards:
+      enabled: '{{repl ConfigOptionEquals "opensearch_dashboards_enabled" "1"}}'
+      image:
+        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch-dashboards'
+        tag: "2.9.0"
+        pullPolicy: IfNotPresent
+      opensearchHosts: "http://{{ .Release.Name }}-opensearch:9200"
+    
+    # External services configuration
+    externalServices:
+      # PostgreSQL
       postgres:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/library" ) }}/postgres'
+        external: '{{repl ConfigOptionEquals "postgres_external" "1"}}'
+        host: '{{repl if ConfigOptionEquals "postgres_external" "1"}}{{repl ConfigOption "postgres_host"}}{{repl else}}{{repl if ConfigOptionEquals "postgres_enabled" "1"}}secoda-postgresql{{repl else}}{{repl end}}{{repl end}}'
+        port: '{{repl if ConfigOptionEquals "postgres_external" "1"}}{{repl ConfigOption "postgres_port"}}{{repl else}}5432{{repl end}}'
+        username: '{{repl ConfigOption "postgres_username"}}'
+        password: '{{repl ConfigOption "postgres_password"}}'
+        database: '{{repl ConfigOption "postgres_database"}}'
+      
+      # Redis
+      redis:
+        external: '{{repl ConfigOptionEquals "redis_external" "1"}}'
+        host: '{{repl if ConfigOptionEquals "redis_external" "1"}}{{repl ConfigOption "redis_host"}}{{repl else}}{{repl if ConfigOptionEquals "redis_enabled" "1"}}secoda-redis-master{{repl else}}{{repl end}}{{repl end}}'
+        port: '{{repl if ConfigOptionEquals "redis_external" "1"}}{{repl ConfigOption "redis_port"}}{{repl else}}6379{{repl end}}'
+      
+      # OpenSearch
+      opensearch:
+        external: '{{repl ConfigOptionEquals "opensearch_external" "1"}}'
+        host: '{{repl if ConfigOptionEquals "opensearch_external" "1"}}{{repl ConfigOption "opensearch_host"}}{{repl else}}{{repl if ConfigOptionEquals "opensearch_enabled" "1"}}secoda-opensearch{{repl else}}{{repl end}}{{repl end}}'
+        port: '{{repl if ConfigOptionEquals "opensearch_external" "1"}}{{repl ConfigOption "opensearch_port"}}{{repl else}}9200{{repl end}}'

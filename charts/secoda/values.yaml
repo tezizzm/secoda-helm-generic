@@ -9,8 +9,11 @@ services:
     image:
       registry: ""
       name: "on-premise-api"
-      pullPolicy: ""
+      pullPolicy: IfNotPresent
       tag: ""
+    secret: ""  # Will be set from UI config
+    publicKey: ""  # Will be set from UI config
+    privateKey: ""  # Will be set from UI config
     env: []
     ports:
       - containerPort: 5007
@@ -42,7 +45,7 @@ services:
     image:
       registry: ""
       name: "on-premise-frontend"
-      pullPolicy: ""
+      pullPolicy: IfNotPresent
       tag: ""
     args: []
     env: []
@@ -112,3 +115,83 @@ tolerations: []
 affinity: {}
 dnsConfig: {}
 annotations: {}
+
+## Redis Configuration
+## ref: https://github.com/bitnami/charts/tree/main/bitnami/redis
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+
+## PostgreSQL Configuration
+## ref: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+postgresql:
+  enabled: true
+  auth:
+    username: postgres
+    password: postgres
+    database: postgres
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+
+## OpenSearch Configuration
+## ref: https://github.com/opensearch-project/helm-charts/tree/main/charts/opensearch
+opensearch:
+  enabled: false
+  singleNode: true
+  config:
+    opensearch.yml: |
+      cluster.name: opensearch-cluster
+      # Disable security features for simplicity
+      plugins.security.disabled: true
+  persistence:
+    enabled: true
+    size: 20Gi
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+  javaOpts: "-Xmx1g -Xms1g"
+
+## OpenSearch Dashboards Configuration
+## ref: https://github.com/opensearch-project/helm-charts/tree/main/charts/opensearch-dashboards
+opensearchDashboards:
+  enabled: false
+  opensearchHosts: "http://{{ .Release.Name }}-opensearch:9200"
+  config:
+    opensearch_dashboards.yml: |
+      server.name: opensearch-dashboards
+      server.host: "0.0.0.0"
+      # Disable security features for simplicity
+      opensearch_security.disabled: true
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 300m
+    limits:
+      memory: 512Mi
+      cpu: 300m

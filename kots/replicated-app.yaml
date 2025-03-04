@@ -6,10 +6,10 @@ spec:
   title: Secoda
   icon: "https://cdn.prod.website-files.com/648302318a1143aaf5e78dfa/662e7e94b56b979257642b08_secoda.png"
   ports:
-    - serviceName: secoda-nginx
-      servicePort: 443
-      localPort: 443
-      applicationUrl: "https://secoda"
+    - serviceName: secoda-frontend
+      servicePort: 80
+      localPort: 8080
+      applicationUrl: "http://localhost:8080"
   statusInformers:
-    - deployment/secoda
-    - deployment/secoa-nginx
+    - deployment/secoda-api
+    - deployment/secoda-frontend
