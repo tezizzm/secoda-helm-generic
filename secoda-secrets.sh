@@ -17,6 +17,19 @@ kubectl create secret generic secoda-secret-keys \
     --from-literal=PRIVATE_KEY=$PRIVKEY \
     --from-literal=PUBLIC_KEY=$PUBKEY
 
+#
+## This version may work if the above commands fail
+#
+#PRIV=$(openssl genrsa -traditional 2048)
+#PUB=$(echo -n "$PRIV" | openssl rsa -outform PEM -pubout)
+#PRIVKEY=$(echo -n "$PRIV" | base64 -w 0)
+#PUBKEY=$(echo -n "$PUB" | base64 -w 0)
+#kubectl create secret generic secoda-secret-keys \
+    #--from-literal=PRIVATE_KEY=$PRIVKEY \
+    #--from-literal=PUBLIC_KEY=$PUBKEY
+
+
+
 
 # Edit the secrets.env file to set your secrets values
 kubectl create secret generic secoda-secrets \

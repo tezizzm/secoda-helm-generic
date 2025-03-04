@@ -1,9 +1,6 @@
 datastores:
   secoda:
     authorized_domains: "secoda.co,secoda.com" # Replace with your email domains
-env:
-- name: IS_MANAGED
-  value: "false"
 nodeSelectorApi: {}
 # If you are require a service account with linked roles, set create to false and
 # the name to your preferred service account
@@ -19,6 +16,9 @@ services:
     image:
       name: on-premise-api
       registry: secoda
+    env:
+    - name: IS_MANAGED
+      value: "false"
     resources:
       limits:
         cpu: 2048m
