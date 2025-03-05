@@ -1,4 +1,4 @@
-apiVersion: kots.io/v1beta2
+apiVersion: kots.io/v1beta1
 kind: HelmChart
 metadata:
   name: secoda
@@ -28,9 +28,16 @@ spec:
           name: "on-premise-api"
           tag: '{{repl .replicated.image.tag }}'
           pullPolicy: IfNotPresent
-        secret: '{{repl if eq .api_service_secret_auto "1"}}{{repl .api_service_secret }}{{repl else}}{{repl printf "%s-%s" .release_name .namespace | sha256sum }}{{repl end}}'
-        publicKey: '{{repl if eq .keys_auto "1"}}{{repl if .public_key_file }}{{repl .public_key_file }}{{repl else}}{{repl .public_key }}{{repl end}}{{repl else}}{{repl printf "%s-%s-public" .release_name .namespace | sha256sum }}{{repl end}}'
-        privateKey: '{{repl if eq .keys_auto "1"}}{{repl if .private_key_file }}{{repl .private_key_file }}{{repl else}}{{repl .private_key }}{{repl end}}{{repl else}}{{repl printf "%s-%s-private" .release_name .namespace | sha256sum }}{{repl end}}'
+        secret: 'repl {{ if eq .Values.api_service_secret_auto "1"}}{{.Values.api_service_secret}}{{else}}repl-generated-secret{{end}}'
+        publicKey: 'repl {{ if eq .Values.keys_auto "1"}}{{if .Values.public_key_file}}{{.Values.public_key_file}}{{else}}{{.Values.public_key}}{{end}}{{else}}repl-generated-public-key{{end}}'
+        privateKey: 'repl {{ if eq .Values.keys_auto "1"}}{{if .Values.private_key_file}}{{.Values.private_key_file}}{{else}}{{.Values.private_key}}{{end}}{{else}}repl-generated-private-key{{end}}'
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
       frontend:
         image:
           registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
@@ -39,30 +46,30 @@ spec:
 
     # Redis configuration
     redis:
-      enabled: '{{repl ConfigOptionEquals "redis_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "redis_enabled" "1"}}'
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/redis'
         tag: "7.0.12-debian-11-r11"
         pullPolicy: IfNotPresent
       persistence:
-        size: '{{repl ConfigOption "redis_size"}}'
+        size: 'repl {{ .Values.redis_size}}'
     
     # PostgreSQL configuration
     postgresql:
-      enabled: '{{repl ConfigOptionEquals "postgres_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "postgres_enabled" "1"}}'
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/postgresql'
         tag: "14.10.0-debian-11-r14"
         pullPolicy: IfNotPresent
       auth:
-        username: '{{repl ConfigOption "postgres_username"}}'
-        password: '{{repl ConfigOption "postgres_password"}}'
-        database: '{{repl ConfigOption "postgres_database"}}'
+        username: 'repl {{ .Values.postgres_username}}'
+        password: 'repl {{ .Values.postgres_password}}'
+        database: 'repl {{ .Values.postgres_database}}'
       primary:
         persistence:
-          size: '{{repl ConfigOption "postgres_size"}}'
+          size: 'repl {{ .Values.postgres_size}}'
         resources:
           requests:
             memory: 8Gi
@@ -73,17 +80,17 @@ spec:
     
     # OpenSearch configuration
     opensearch:
-      enabled: '{{repl ConfigOptionEquals "opensearch_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "opensearch_enabled" "1"}}'
       image:
         registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
         repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch'
         tag: "2.9.0"
         pullPolicy: IfNotPresent
       auth:
-        adminUser: '{{repl ConfigOption "opensearch_username"}}'
-        adminPassword: '{{repl ConfigOption "opensearch_password"}}'
+        adminUser: 'repl {{ .Values.opensearch_username}}'
+        adminPassword: 'repl {{ .Values.opensearch_password}}'
       persistence:
-        size: '{{repl ConfigOption "opensearch_size"}}'
+        size: 'repl {{ .Values.opensearch_size}}'
       resources:
         requests:
           memory: 4Gi
