@@ -15,18 +15,18 @@ spec:
       isEmbeddedCluster: repl{{ eq Distribution "embedded-cluster"}}
       isKOTSManaged: true
       imagePullSecrets:
-        - name: '{{repl ImagePullSecretName }}'
+        - name: 'repl {{ ImagePullSecretName }}'
       image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
+        registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/index.docker.io/replicated" ) }}/replicated-sdk'
 
     # Service configurations
     services:
       api:
         image:
-          registry: '{{repl if eq .replicated.isEmbeddedCluster "1"}}registry.default.svc.cluster.local{{repl else}}{{repl .replicated.image.registry }}{{repl end}}'
+          registry: 'repl {{ if eq .replicated.isEmbeddedCluster "1"}}registry.default.svc.cluster.localrepl {{ else}} repl {{ .replicated.image.registry }} repl {{ end}}'
           name: "on-premise-api"
-          tag: '{{repl .replicated.image.tag }}'
+          tag: 'repl {{ .replicated.image.tag }}'
           pullPolicy: IfNotPresent
         secret: 'repl {{ if eq .Values.api_service_secret_auto "1"}}{{.Values.api_service_secret}}{{else}}repl-generated-secret{{end}}'
         publicKey: 'repl {{ if eq .Values.keys_auto "1"}}{{if .Values.public_key_file}}{{.Values.public_key_file}}{{else}}{{.Values.public_key}}{{end}}{{else}}repl-generated-public-key{{end}}'
@@ -40,16 +40,16 @@ spec:
             cpu: "500m"
       frontend:
         image:
-          registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-          repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/secoda") }}'
-          tag: '{{repl ConfigOption "frontend_version" | default .Chart.AppVersion }}'
+          registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+          repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/secoda") }}'
+          tag: 'repl {{ ConfigOption "frontend_version" | default .Chart.AppVersion }}'
 
     # Redis configuration
     redis:
-      enabled: 'repl {{ ConfigOptionEquals "redis_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "redis_deployment" "internal"}}'
       image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/redis'
+        registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/redis'
         tag: "7.0.12-debian-11-r11"
         pullPolicy: IfNotPresent
       persistence:
@@ -57,10 +57,10 @@ spec:
     
     # PostgreSQL configuration
     postgresql:
-      enabled: 'repl {{ ConfigOptionEquals "postgres_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "postgres_deployment" "internal"}}'
       image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/postgresql'
+        registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/bitnami") }}/postgresql'
         tag: "14.10.0-debian-11-r14"
         pullPolicy: IfNotPresent
       auth:
@@ -80,10 +80,10 @@ spec:
     
     # OpenSearch configuration
     opensearch:
-      enabled: 'repl {{ ConfigOptionEquals "opensearch_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "opensearch_deployment" "internal"}}'
       image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch'
+        registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch'
         tag: "2.9.0"
         pullPolicy: IfNotPresent
       auth:
@@ -101,10 +101,10 @@ spec:
     
     # OpenSearch Dashboards configuration
     opensearchDashboards:
-      enabled: '{{repl ConfigOptionEquals "opensearch_dashboards_enabled" "1"}}'
+      enabled: 'repl {{ ConfigOptionEquals "opensearch_dashboards_enabled" "1"}}'
       image:
-        registry: '{{repl HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
-        repository: '{{repl HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch-dashboards'
+        registry: 'repl {{ HasLocalRegistry | ternary LocalRegistryHost "$REGISTRY" }}'
+        repository: 'repl {{ HasLocalRegistry | ternary LocalRegistryNamespace (print "proxy/" (LicenseFieldValue "appSlug") "/docker.io/opensearchproject") }}/opensearch-dashboards'
         tag: "2.9.0"
         pullPolicy: IfNotPresent
       opensearchHosts: "http://{{ .Release.Name }}-opensearch:9200"
@@ -113,21 +113,21 @@ spec:
     externalServices:
       # PostgreSQL
       postgres:
-        external: '{{repl ConfigOptionEquals "postgres_external" "1"}}'
-        host: '{{repl if ConfigOptionEquals "postgres_external" "1"}}{{repl ConfigOption "postgres_host"}}{{repl else}}{{repl if ConfigOptionEquals "postgres_enabled" "1"}}secoda-postgresql{{repl else}}{{repl end}}{{repl end}}'
-        port: '{{repl if ConfigOptionEquals "postgres_external" "1"}}{{repl ConfigOption "postgres_port"}}{{repl else}}5432{{repl end}}'
-        username: '{{repl ConfigOption "postgres_username"}}'
-        password: '{{repl ConfigOption "postgres_password"}}'
-        database: '{{repl ConfigOption "postgres_database"}}'
+        external: 'repl {{ ConfigOptionEquals "postgres_deployment" "external"}}'
+        host: 'repl {{ if ConfigOptionEquals "postgres_deployment" "external"}}{{ConfigOption "postgres_host"}}{{else}}{{if ConfigOptionEquals "postgres_deployment" "internal"}}secoda-postgresql{{end}}{{end}}'
+        port: 'repl {{ if ConfigOptionEquals "postgres_deployment" "external"}}{{ConfigOption "postgres_port"}}{{else}}5432{{end}}'
+        username: 'repl {{ ConfigOption "postgres_username"}}'
+        password: 'repl {{ ConfigOption "postgres_password"}}'
+        database: 'repl {{ ConfigOption "postgres_database"}}'
       
       # Redis
       redis:
-        external: '{{repl ConfigOptionEquals "redis_external" "1"}}'
-        host: '{{repl if ConfigOptionEquals "redis_external" "1"}}{{repl ConfigOption "redis_host"}}{{repl else}}{{repl if ConfigOptionEquals "redis_enabled" "1"}}secoda-redis-master{{repl else}}{{repl end}}{{repl end}}'
-        port: '{{repl if ConfigOptionEquals "redis_external" "1"}}{{repl ConfigOption "redis_port"}}{{repl else}}6379{{repl end}}'
+        external: 'repl {{ ConfigOptionEquals "redis_deployment" "external"}}'
+        host: 'repl {{ if ConfigOptionEquals "redis_deployment" "external"}}{{ConfigOption "redis_host"}}{{else}}{{if ConfigOptionEquals "redis_deployment" "internal"}}secoda-redis-master{{end}}{{end}}'
+        port: 'repl {{ if ConfigOptionEquals "redis_deployment" "external"}}{{ConfigOption "redis_port"}}{{else}}6379{{end}}'
       
       # OpenSearch
       opensearch:
-        external: '{{repl ConfigOptionEquals "opensearch_external" "1"}}'
-        host: '{{repl if ConfigOptionEquals "opensearch_external" "1"}}{{repl ConfigOption "opensearch_host"}}{{repl else}}{{repl if ConfigOptionEquals "opensearch_enabled" "1"}}secoda-opensearch{{repl else}}{{repl end}}{{repl end}}'
-        port: '{{repl if ConfigOptionEquals "opensearch_external" "1"}}{{repl ConfigOption "opensearch_port"}}{{repl else}}9200{{repl end}}'
+        external: 'repl {{ ConfigOptionEquals "opensearch_deployment" "external"}}'
+        host: 'repl {{ if ConfigOptionEquals "opensearch_deployment" "external"}}{{ConfigOption "opensearch_host"}}{{else}}{{if ConfigOptionEquals "opensearch_deployment" "internal"}}secoda-opensearch{{end}}{{end}}'
+        port: 'repl {{ if ConfigOptionEquals "opensearch_deployment" "external"}}{{ConfigOption "opensearch_port"}}{{else}}9200{{end}}'

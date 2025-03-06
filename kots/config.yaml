@@ -8,135 +8,141 @@ spec:
       title: Database Configuration
       description: Configure the database settings for Secoda
       items:
-        - name: postgres_enabled
-          title: Deploy PostgreSQL
-          type: bool
-          default: "1"
-          help_text: Enable to deploy PostgreSQL with the application
-        - name: postgres_external
-          title: Use External PostgreSQL
-          type: bool
-          default: "0"
-          when: 'repl {{ ConfigOptionEquals "postgres_enabled" "0"}}'
-          help_text: Enable to use an external PostgreSQL database
+        - name: postgres_deployment
+          title: PostgreSQL Deployment
+          type: select_one
+          default: internal
+          items:
+            - name: internal
+              title: Deploy with Application
+              help_text: Deploy PostgreSQL alongside the application
+            - name: external
+              title: Use External PostgreSQL
+              help_text: Connect to an existing PostgreSQL instance
         - name: postgres_host
           title: PostgreSQL Host
           type: text
-          when: 'repl {{ ConfigOptionEquals "postgres_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "postgres_deployment" "external"}}'
           help_text: The hostname of your external PostgreSQL server
         - name: postgres_port
           title: PostgreSQL Port
           type: text
           default: "5432"
-          when: 'repl {{ ConfigOptionEquals "postgres_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "postgres_deployment" "external"}}'
           help_text: The port of your external PostgreSQL server
         - name: postgres_username
           title: PostgreSQL Username
           type: text
           default: "keycloak"
-          when: 'repl {{ or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
+          when: 'repl {{ or (ConfigOptionEquals "postgres_deployment" "internal") (ConfigOptionEquals "postgres_deployment" "external")}}'
           help_text: The admin-level username for PostgreSQL
         - name: postgres_password
           title: PostgreSQL Password
           type: password
           required: true
-          when: 'repl {{ or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
-          help_text: The admin-level password for the keycloak user
+          when: 'repl {{ or (ConfigOptionEquals "postgres_deployment" "internal") (ConfigOptionEquals "postgres_deployment" "external")}}'
+          help_text: The admin-level password for PostgreSQL
         - name: postgres_database
           title: PostgreSQL Database
           type: text
           default: "secoda"
-          when: 'repl {{ or (ConfigOptionEquals "postgres_enabled" "1") (ConfigOptionEquals "postgres_external" "1")}}'
+          when: 'repl {{ or (ConfigOptionEquals "postgres_deployment" "internal") (ConfigOptionEquals "postgres_deployment" "external")}}'
           help_text: The database name for PostgreSQL
         - name: postgres_size
           title: PostgreSQL Storage Size
           type: text
           default: "100Gi"
-          when: 'repl {{ ConfigOptionEquals "postgres_enabled" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "postgres_deployment" "internal"}}'
           help_text: The storage size for PostgreSQL
 
     - name: cache
       title: Cache Configuration
       description: Configure the cache settings for Secoda
       items:
-        - name: redis_enabled
-          title: Deploy Redis
-          type: bool
-          default: "1"
-          help_text: Enable to deploy Redis with the application
-        - name: redis_external
-          title: Use External Redis
-          type: bool
-          default: "0"
-          when: 'repl {{ ConfigOptionEquals "redis_enabled" "0"}}'
-          help_text: Enable to use an external Redis server
+        - name: redis_deployment
+          title: Redis Deployment
+          type: select_one
+          default: internal
+          items:
+            - name: internal
+              title: Deploy with Application
+              help_text: Deploy Redis alongside the application
+            - name: external
+              title: Use External Redis
+              help_text: Connect to an existing Redis instance
+            - name: disabled
+              title: Disabled
+              help_text: Redis will not be deployed or connected
         - name: redis_host
           title: Redis Host
           type: text
-          when: 'repl {{ ConfigOptionEquals "redis_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "redis_deployment" "external"}}'
           help_text: The hostname of your external Redis server
         - name: redis_port
           title: Redis Port
           type: text
           default: "6379"
-          when: 'repl {{ ConfigOptionEquals "redis_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "redis_deployment" "external"}}'
           help_text: The port of your external Redis server
         - name: redis_size
           title: Redis Storage Size
           type: text
           default: "8Gi"
-          when: 'repl {{ ConfigOptionEquals "redis_enabled" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "redis_deployment" "internal"}}'
           help_text: The storage size for Redis
 
     - name: search
       title: Search Configuration
       description: Configure the search settings for Secoda
       items:
-        - name: opensearch_enabled
-          title: Deploy OpenSearch
-          type: bool
-          default: "0"
-          help_text: Enable to deploy OpenSearch with the application
-        - name: opensearch_external
-          title: Use External OpenSearch
-          type: bool
-          default: "0"
-          when: 'repl {{ ConfigOptionEquals "opensearch_enabled" "0"}}'
-          help_text: Enable to use an external OpenSearch server
+        - name: opensearch_deployment
+          title: OpenSearch Deployment
+          type: select_one
+          default: disabled
+          items:
+            - name: internal
+              title: Deploy with Application
+              help_text: Deploy OpenSearch alongside the application
+            - name: external
+              title: Use External OpenSearch
+              help_text: Connect to an existing OpenSearch instance
+            - name: disabled
+              title: Disabled
+              help_text: OpenSearch will not be deployed or connected
         - name: opensearch_host
           title: OpenSearch Host
           type: text
-          when: 'repl {{ ConfigOptionEquals "opensearch_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "opensearch_deployment" "external"}}'
           help_text: The hostname of your external OpenSearch server
         - name: opensearch_port
           title: OpenSearch Port
           type: text
           default: "9200"
-          when: 'repl {{ ConfigOptionEquals "opensearch_external" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "opensearch_deployment" "external"}}'
           help_text: The port of your external OpenSearch server
         - name: opensearch_username
           title: OpenSearch Username
           type: text
           default: "admin"
-          when: 'repl {{ or (ConfigOptionEquals "opensearch_enabled" "1") (ConfigOptionEquals "opensearch_external" "1")}}'
+          when: 'repl {{ or (ConfigOptionEquals "opensearch_deployment" "internal") (ConfigOptionEquals "opensearch_deployment" "external")}}'
           help_text: The admin username for OpenSearch
         - name: opensearch_password
           title: OpenSearch Password
           type: password
           required: true
-          when: 'repl {{ or (ConfigOptionEquals "opensearch_enabled" "1") (ConfigOptionEquals "opensearch_external" "1")}}'
+          when: 'repl {{ or (ConfigOptionEquals "opensearch_deployment" "internal") (ConfigOptionEquals "opensearch_deployment" "external")}}'
           help_text: The admin password for OpenSearch
         - name: opensearch_size
           title: OpenSearch Storage Size
           type: text
           default: "20Gi"
-          when: 'repl {{ ConfigOptionEquals "opensearch_enabled" "1"}}'
+          when: 'repl {{ ConfigOptionEquals "opensearch_deployment" "internal"}}'
           help_text: The storage size for OpenSearch
         - name: opensearch_dashboards_enabled
           title: Deploy OpenSearch Dashboards
           type: bool
           default: "0"
-          when: 'repl {{ or (ConfigOptionEquals "opensearch_enabled" "1") (ConfigOptionEquals "opensearch_external" "1")}}'
+          when: 'repl {{ or (ConfigOptionEquals "opensearch_deployment" "internal") (ConfigOptionEquals "opensearch_deployment" "external")}}'
           help_text: Enable to deploy OpenSearch Dashboards with the application
 
     - name: api
